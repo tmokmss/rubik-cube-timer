@@ -4,6 +4,7 @@
   import History from './lib/components/History.svelte';
   import StageTable from './lib/components/StageTable.svelte';
   import StatsBar from './lib/components/StatsBar.svelte';
+  import SyncPanel from './lib/components/SyncPanel.svelte';
   import TrendPanel from './lib/components/TrendPanel.svelte';
   import TimerPad from './lib/components/TimerPad.svelte';
   import { isTextEntry, restoreFocus } from './lib/core/keys';
@@ -192,6 +193,8 @@
   <TrendPanel solves={app.solves} mode={app.mode} goalMs={app.goalMs} />
 
   <History solves={app.solves} onDelete={(id) => app.remove(id)} />
+
+  <SyncPanel />
 
   <DataPanel solves={app.solves} onReplace={(s) => app.replaceAll(s)} />
 </div>

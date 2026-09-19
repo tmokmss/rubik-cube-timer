@@ -8,7 +8,7 @@ import {
 
 /** 記録は各自の localStorage にしか無い。初期値は空。 */
 export function emptyStore(): StoreData {
-  return { mode: '4', goalMs: DEFAULT_GOAL_MS, solves: [] };
+  return { mode: '4', goalMs: DEFAULT_GOAL_MS, solves: [], deleted: [] };
 }
 
 function sanitize(raw: unknown): StoreData | null {
@@ -19,6 +19,7 @@ function sanitize(raw: unknown): StoreData | null {
     solves: d.solves,
     mode: isMode(d.mode) ? d.mode : '4',
     goalMs: isGoalMs(d.goalMs) ? d.goalMs : DEFAULT_GOAL_MS,
+    deleted: Array.isArray(d.deleted) ? d.deleted : [],
   };
 }
 

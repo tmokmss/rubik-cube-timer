@@ -538,3 +538,13 @@ textarea {
   margin-bottom: 14px;
   font-size: 0.9rem;
 }
+
+/* ---------- 端末間の同期 ---------- */
+.sync-at {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}

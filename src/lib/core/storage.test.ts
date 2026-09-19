@@ -36,6 +36,16 @@ describe('loadStore', () => {
     expect(loadStore().data.goalMs).toBe(30_000);
   });
 
+  it('deleted を持たない古いデータもそのまま読める(墓標なしとみなす)', () => {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ mode: '4', goalMs: 30_000, solves: [{ id: 'a', at: 'x', total: 1, splits: [], scramble: '' }] }),
+    );
+    const { data } = loadStore();
+    expect(data.deleted).toEqual([]);
+    expect(data.solves).toHaveLength(1);
+  });
+
   it('使わなくなった seeded が残っていても無視して読める', () => {
     localStorage.setItem(
       STORAGE_KEY,
@@ -76,7 +86,7 @@ describe('loadStore', () => {
 
 describe('saveStore', () => {
   it('書いたものを読み戻せる', () => {
-    const data: StoreData = { mode: '1', goalMs: 45_000, solves: [] };
+    const data: StoreData = { mode: '1', goalMs: 45_000, solves: [], deleted: [] };
     expect(saveStore(data)).toBe(true);
     expect(loadStore().data).toEqual(data);
   });

@@ -59,12 +59,33 @@ export interface Solve {
   scramble: string;
 }
 
+/**
+ * 消した記録の墓標。
+ *
+ * 端末間で同期するとき、片方で消した記録がもう片方から復活しないようにするために要る。
+ * 和集合でマージするだけだと「消す」が伝わらない。
+ */
+export interface Tombstone {
+  id: string;
+  /** 日時+合計の署名。id が振り直された同一記録(CSV 経由など)も消えたままにする。 */
+  sig: string;
+  /** 消した時刻(ISO8601)。古くなったものを刈るのに使う。 */
+  at: string;
+}
+
+/** 記録の同一性。CSV は id を持たないので、日時と合計で見分ける。 */
+export function solveSignature(s: Pick<Solve, 'at' | 'total'>): string {
+  return `${new Date(s.at).getTime()}|${s.total}`;
+}
+
 export interface StoreData {
   mode: Mode;
   /** 目標の合計タイム(ms)。v1 の途中から足したので、無ければ 30秒とみなす。 */
   goalMs: GoalMs;
   /** 時系列順(古い順)。 */
   solves: Solve[];
+  /** 消した記録。v1 の途中から足したので、無ければ空とみなす。 */
+  deleted: Tombstone[];
 }
 
 /**

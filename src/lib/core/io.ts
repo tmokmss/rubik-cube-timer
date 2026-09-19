@@ -1,5 +1,5 @@
 import { stageMs } from './stats';
-import { SPLIT_STAGES, type Solve, type Split, type StageName } from './types';
+import { SPLIT_STAGES, solveSignature, type Solve, type Split, type StageName } from './types';
 
 export const CSV_HEADER = 'date,total_s,cross,f2l,oll,pll,ll,scramble';
 
@@ -180,11 +180,6 @@ export function parseImport(text: string): Solve[] {
 
 /* ------------------------------ merge ------------------------------ */
 
-/** id が違っても同じ瞬間・同じ合計なら同一の記録とみなす(CSV は id を持たないため)。 */
-function signature(s: Solve): string {
-  return `${new Date(s.at).getTime()}|${s.total}`;
-}
-
 export interface MergeResult {
   solves: Solve[];
   added: number;
@@ -193,13 +188,13 @@ export interface MergeResult {
 
 export function mergeSolves(current: Solve[], incoming: Solve[]): MergeResult {
   const ids = new Set(current.map((s) => s.id));
-  const sigs = new Set(current.map(signature));
+  const sigs = new Set(current.map(solveSignature));
   const merged = [...current];
   let added = 0;
   let skipped = 0;
 
   for (const s of incoming) {
-    const sig = signature(s);
+    const sig = solveSignature(s);
     if (ids.has(s.id) || sigs.has(sig)) {
       skipped++;
       continue;
