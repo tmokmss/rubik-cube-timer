@@ -3,39 +3,12 @@ import {
   STORAGE_KEY,
   isGoalMs,
   isMode,
-  type Solve,
   type StoreData,
 } from './types';
 
+/** 記録は各自の localStorage にしか無い。初期値は空。 */
 export function emptyStore(): StoreData {
-  return { mode: '4', goalMs: DEFAULT_GOAL_MS, seeded: false, solves: [] };
-}
-
-/**
- * 過去にスプレッドシートで記録していた分。合計のみで splits は空。
- * 一度きり(`seeded`)。GitHub Pages に移すとオリジンが変わるのでここでも改めて入る。
- */
-export function seedSolves(): Solve[] {
-  const past: Array<[month: number, day: number, seconds: number]> = [
-    [6, 11, 260],
-    [6, 12, 133],
-    [6, 15, 97],
-    [6, 21, 94],
-    [6, 22, 58],
-    [6, 22, 120],
-    [6, 22, 72],
-    [6, 22, 72],
-    [7, 5, 85],
-  ];
-  return past
-    .map(([m, d, sec], i) => ({
-      id: `seed${i}`,
-      at: new Date(2026, m - 1, d, 12, i).toISOString(),
-      total: sec * 1000,
-      splits: [],
-      scramble: '',
-    }))
-    .sort((a, b) => (a.at < b.at ? -1 : 1));
+  return { mode: '4', goalMs: DEFAULT_GOAL_MS, solves: [] };
 }
 
 function sanitize(raw: unknown): StoreData | null {
@@ -46,7 +19,6 @@ function sanitize(raw: unknown): StoreData | null {
     solves: d.solves,
     mode: isMode(d.mode) ? d.mode : '4',
     goalMs: isGoalMs(d.goalMs) ? d.goalMs : DEFAULT_GOAL_MS,
-    seeded: !!d.seeded,
   };
 }
 

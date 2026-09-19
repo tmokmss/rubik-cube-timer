@@ -63,7 +63,6 @@ export interface StoreData {
   mode: Mode;
   /** 目標の合計タイム(ms)。v1 の途中から足したので、無ければ 30秒とみなす。 */
   goalMs: GoalMs;
-  seeded: boolean;
   /** 時系列順(古い順)。 */
   solves: Solve[];
 }

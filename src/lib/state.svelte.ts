@@ -1,4 +1,4 @@
-import { loadStore, saveStore, seedSolves } from './core/storage';
+import { loadStore, saveStore } from './core/storage';
 import {
   DEFAULT_GOAL_MS,
   type GoalMs,
@@ -20,7 +20,6 @@ class AppState {
   solves = $state<Solve[]>([]);
   /** localStorage が使えない環境では false。UI に警告を出す。 */
   canSave = $state(true);
-  #seeded = false;
 
   get stages(): readonly StageName[] {
     return stagesOf(this.mode);
@@ -41,19 +40,12 @@ class AppState {
     this.goalMs = data.goalMs;
     this.solves = data.solves;
     this.canSave = canSave;
-    this.#seeded = data.seeded;
-    if (!this.#seeded) {
-      this.solves = [...this.solves, ...seedSolves()].sort(byTime);
-      this.#seeded = true;
-      this.persist();
-    }
   }
 
   persist(): void {
     const ok = saveStore({
       mode: this.mode,
       goalMs: this.goalMs,
-      seeded: this.#seeded,
       // $state のプロキシを素の配列に戻してから保存する。
       solves: $state.snapshot(this.solves) as Solve[],
     });

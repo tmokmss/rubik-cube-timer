@@ -24,7 +24,7 @@ src/
       format.ts          時間の表示
       stats.ts           ao5 / ao12 / 区間平均
       scramble.ts        スクランブル生成
-      storage.ts         localStorage の読み書きと初回シード
+      storage.ts         localStorage の読み書き
       io.ts              JSON / CSV の書き出しと取り込み
       keys.ts            Space をどこで拾うかの判定
     components/          表示のみ
@@ -69,7 +69,6 @@ localStorage キー: `cube-split-timer:v1`
 {
   "mode": "4",
   "goalMs": 30000,
-  "seeded": true,
   "solves": [
     {
       "id": "lx3k9a",
@@ -83,7 +82,9 @@ localStorage キー: `cube-split-timer:v1`
 ```
 
 - 時間はすべてミリ秒の整数。`solves` は時系列順(古い順)
-- `splits` が空配列の記録は合計のみ(過去のスプレッドシート分 `seed0`〜`seed8` を含む)
+- `splits` が空配列の記録は合計のみ
+- **記録は各自の localStorage にしか無い。初期値は空で、アプリ側に記録を埋め込まない**
+  (以前は過去のスプレッドシート分9件を初回に流し込んでいたが、他の人が開いても見えてしまうので外した)
 - LLの値は、`LL` がなければ `OLL + PLL` で代用する(`stageMs`)
 - 既定値を持つ項目の追加は後方互換なのでキーは据え置く(`goalMs` はこれで足した)。
   既存データが読めなくなる変更をするときだけ `v2` にして `storage.ts` に移行処理を書く
