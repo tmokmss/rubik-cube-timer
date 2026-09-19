@@ -3,6 +3,7 @@
   import { stageAverages } from '../core/stats';
   import {
     GOALS_MS,
+    splitStagesFor,
     type GoalMs,
     type Mode,
     type Solve,
@@ -23,10 +24,7 @@
     onGoalChange: (goal: GoalMs) => void;
   } = $props();
 
-  // 合計のみモードでも、区間つきの過去記録は 4 区間で見せる(元アプリと同じ)。
-  const names = $derived<readonly SplitStageName[]>(
-    mode === '3' ? (['Cross', 'F2L', 'LL'] as const) : (['Cross', 'F2L', 'OLL', 'PLL'] as const),
-  );
+  const names = $derived<readonly SplitStageName[]>(splitStagesFor(mode));
   const agg = $derived(stageAverages(solves, names, targets));
   const scale = $derived(
     Math.max(...agg.rows.map((r) => Math.max(r.avg ?? 0, r.target))) * 1.05 || 1,

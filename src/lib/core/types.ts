@@ -84,3 +84,13 @@ export function isGoalMs(v: unknown): v is GoalMs {
 export function stagesOf(mode: Mode): readonly StageName[] {
   return STAGE_SETS[mode];
 }
+
+/**
+ * 集計に使う区間の並び。合計のみモードでも、過去の区間つき記録は4区間で見せる。
+ * 積み上げグラフはこの順に下から積む。
+ */
+export function splitStagesFor(mode: Mode): readonly SplitStageName[] {
+  return mode === '3'
+    ? (['Cross', 'F2L', 'LL'] as const)
+    : (['Cross', 'F2L', 'OLL', 'PLL'] as const);
+}

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { aoN, best, stageAverages, stageMs } from './stats';
+import { aoN, best, stageAverages, stageMs, stageTrend } from './stats';
 import { targetsFor, type Solve } from './types';
 
 function solve(total: number, splits: Solve['splits'] = []): Solve {
@@ -91,5 +91,57 @@ describe('stageAverages', () => {
     const { rows, sampled } = stageAverages([solve(58_000)], ['Cross'], targets);
     expect(sampled).toBe(0);
     expect(rows[0].avg).toBeNull();
+  });
+});
+
+describe('stageTrend', () => {
+  const four = (cross: number, f2l: number, oll = 5000, pll = 5000): Solve => ({
+    id: `c${cross}`,
+    at: '2026-09-19T00:00:00.000Z',
+    total: cross + f2l + oll + pll,
+    splits: [
+      { name: 'Cross', ms: cross },
+      { name: 'F2L', ms: f2l },
+      { name: 'OLL', ms: oll },
+      { name: 'PLL', ms: pll },
+    ],
+    scramble: '',
+  });
+
+  it('移動平均をとる', () => {
+    const t = stageTrend([four(3000, 10_000), four(6000, 10_000), four(9000, 10_000)], ['Cross'], {
+      window: 2,
+    });
+    expect(t.points.map((p) => p.values[0])).toEqual([3000, 4500, 7500]);
+    expect(t.window).toBe(2);
+    expect(t.sampled).toBe(3);
+  });
+
+  it('total は区間の合計', () => {
+    const t = stageTrend([four(4000, 16_000)], ['Cross', 'F2L', 'OLL', 'PLL'], { window: 1 });
+    expect(t.points[0].values).toEqual([4000, 16_000, 5000, 5000]);
+    expect(t.points[0].total).toBe(30_000);
+  });
+
+  it('区間が欠けている記録は積み上げが崩れるので外す', () => {
+    const t = stageTrend([four(4000, 16_000), solve(58_000)], ['Cross', 'F2L'], { window: 1 });
+    expect(t.sampled).toBe(1);
+    expect(t.points).toHaveLength(1);
+  });
+
+  it('LL は OLL + PLL で代用されるので4区間の記録も使える', () => {
+    const t = stageTrend([four(4000, 16_000, 5000, 5000)], ['Cross', 'F2L', 'LL'], { window: 1 });
+    expect(t.points[0].values).toEqual([4000, 16_000, 10_000]);
+  });
+
+  it('take で直近だけに絞る', () => {
+    const many = Array.from({ length: 10 }, (_, i) => four((i + 1) * 1000, 10_000));
+    const t = stageTrend(many, ['Cross'], { window: 1, take: 3 });
+    expect(t.sampled).toBe(3);
+    expect(t.points.map((p) => p.values[0])).toEqual([8000, 9000, 10_000]);
+  });
+
+  it('記録が無ければ空', () => {
+    expect(stageTrend([], ['Cross']).points).toEqual([]);
   });
 });

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { GOALS_MS, isGoalMs, isMode, stagesOf, targetsFor } from './types';
+import { GOALS_MS, isGoalMs, isMode, splitStagesFor, stagesOf, targetsFor } from './types';
 
 describe('targetsFor', () => {
   it('30秒はそのまま', () => {
@@ -47,5 +47,12 @@ describe('guards', () => {
   it('stages', () => {
     expect(stagesOf('4')).toEqual(['Cross', 'F2L', 'OLL', 'PLL']);
     expect(stagesOf('1')).toEqual(['全体']);
+  });
+
+  it('集計用の区間は3区間のときだけ LL になる', () => {
+    expect(splitStagesFor('3')).toEqual(['Cross', 'F2L', 'LL']);
+    expect(splitStagesFor('4')).toEqual(['Cross', 'F2L', 'OLL', 'PLL']);
+    // 合計のみモードでも、過去の区間つき記録は4区間で見せる
+    expect(splitStagesFor('1')).toEqual(['Cross', 'F2L', 'OLL', 'PLL']);
   });
 });

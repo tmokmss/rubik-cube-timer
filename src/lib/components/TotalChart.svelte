@@ -49,52 +49,49 @@
   );
 </script>
 
-<section class="panel">
-  <h2>タイムの推移</h2>
-  <div class="chartbox">
-    {#if list.length === 0}
-      <p class="empty">まだ記録がありません。</p>
-    {:else}
-      <svg
-        viewBox="0 0 {W} {H}"
-        width="100%"
-        style="min-width:420px"
-        role="img"
-        aria-label="タイムの推移"
-      >
-        {#each ticks as t (t)}
-          {@const yy = y(t * 1000)}
-          {@const goal = t === goalSec}
-          <line
-            x1={L}
-            x2={W - R}
-            y1={yy.toFixed(1)}
-            y2={yy.toFixed(1)}
-            stroke={goal ? 'var(--green)' : 'var(--line)'}
-            stroke-width={goal ? 1.5 : 1}
-            stroke-dasharray={goal ? '5 4' : undefined}
-          />
-          <text
-            x={L - 6}
-            y={(yy + 4).toFixed(1)}
-            text-anchor="end"
-            style={goal ? 'fill:var(--green)' : undefined}>{t}秒</text
-          >
-        {/each}
+<div class="chartbox">
+  {#if list.length === 0}
+    <p class="empty">まだ記録がありません。</p>
+  {:else}
+    <svg
+      viewBox="0 0 {W} {H}"
+      width="100%"
+      style="min-width:420px"
+      role="img"
+      aria-label="タイムの推移"
+    >
+      {#each ticks as t (t)}
+        {@const yy = y(t * 1000)}
+        {@const goal = t === goalSec}
+        <line
+          x1={L}
+          x2={W - R}
+          y1={yy.toFixed(1)}
+          y2={yy.toFixed(1)}
+          stroke={goal ? 'var(--green)' : 'var(--line)'}
+          stroke-width={goal ? 1.5 : 1}
+          stroke-dasharray={goal ? '5 4' : undefined}
+        />
+        <text
+          x={L - 6}
+          y={(yy + 4).toFixed(1)}
+          text-anchor="end"
+          style={goal ? 'fill:var(--green)' : undefined}>{t}秒</text
+        >
+      {/each}
 
-        {#if ao5Line}
-          <polyline points={ao5Line} fill="none" stroke="var(--ink)" stroke-width="2" />
-        {/if}
+      {#if ao5Line}
+        <polyline points={ao5Line} fill="none" stroke="var(--ink)" stroke-width="2" />
+      {/if}
 
-        {#each list as r, i (r.id)}
-          <circle cx={x(i).toFixed(1)} cy={y(r.total).toFixed(1)} r="3.5" fill="var(--blue)">
-            <title>{fmt(r.total)}</title>
-          </circle>
-        {/each}
-      </svg>
-      <p class="legend" style="margin-top:4px">
-        点が1回ごとのタイム、線がao5。破線が目標の{goalSec}秒。たて軸は対数です。
-      </p>
-    {/if}
-  </div>
-</section>
+      {#each list as r, i (r.id)}
+        <circle cx={x(i).toFixed(1)} cy={y(r.total).toFixed(1)} r="3.5" fill="var(--blue)">
+          <title>{fmt(r.total)}</title>
+        </circle>
+      {/each}
+    </svg>
+    <p class="legend" style="margin-top:4px">
+      点が1回ごとのタイム、線がao5。破線が目標の{goalSec}秒。たて軸は対数です。
+    </p>
+  {/if}
+</div>

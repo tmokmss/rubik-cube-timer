@@ -66,6 +66,11 @@ body {
   max-width: 860px;
   margin: 0 auto;
   padding: 20px 16px 64px;
+  /* ホーム画面から開いたとき、ノッチやホームバーに潜らせない */
+  padding-top: max(20px, env(safe-area-inset-top));
+  padding-left: max(16px, env(safe-area-inset-left));
+  padding-right: max(16px, env(safe-area-inset-right));
+  padding-bottom: max(64px, env(safe-area-inset-bottom));
 }
 header {
   display: flex;
@@ -517,4 +522,19 @@ textarea {
   overflow: hidden;
   clip: rect(0 0 0 0);
   white-space: nowrap;
+}
+
+/* ---------- 新しいバージョンの通知 ---------- */
+.update-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  font-size: 0.9rem;
 }
