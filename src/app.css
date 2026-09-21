@@ -171,13 +171,6 @@ textarea:focus-visible {
 #pad:focus {
   outline: none;
 }
-#scramble {
-  font-size: 1.15rem;
-  letter-spacing: 0.04em;
-  color: var(--muted);
-  min-height: 1.8em;
-  word-spacing: 0.25em;
-}
 #time {
   font-size: clamp(4.5rem, 19vw, 10.5rem);
   font-weight: 600;

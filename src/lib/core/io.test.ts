@@ -19,7 +19,6 @@ const plain: Solve = {
   at: '2026-09-19T02:00:00.000Z',
   total: 58_230,
   splits: [],
-  scramble: '',
 };
 
 describe('parseCsvLine', () => {
@@ -52,6 +51,12 @@ describe('parseImport', () => {
   it('書き出した JSON を読み戻せる', () => {
     const back = parseImport(toJson([four, plain]));
     expect(back).toEqual([four, plain]);
+  });
+
+  it('空の scramble は持たせない(過去の記録のぶんは保つ)', () => {
+    const back = parseImport(toJson([four, plain]));
+    expect(back[0].scramble).toBe("R U2 F'");
+    expect('scramble' in back[1]).toBe(false);
   });
 
   it('素の配列も読める', () => {

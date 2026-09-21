@@ -1,4 +1,3 @@
-import { makeScramble } from './core/scramble';
 import type { Split, StageName } from './core/types';
 
 export type TimerStatus = 'idle' | 'running';
@@ -7,7 +6,6 @@ export type StickerState = 'done' | 'now' | 'todo';
 export interface FinishedSolve {
   total: number;
   splits: Split[];
-  scramble: string;
 }
 
 /**
@@ -21,7 +19,6 @@ export class Timer {
   armed = $state(false);
   /** 直前の計測を保存した直後か。ヒント文言の出し分けだけに使う。 */
   justSaved = $state(false);
-  scramble = $state('');
   marks = $state<number[]>([]);
   now = $state(0);
   t0 = $state(0);
@@ -33,7 +30,6 @@ export class Timer {
   constructor(stages: () => readonly StageName[], onFinish: (solve: FinishedSolve) => void) {
     this.#stages = stages;
     this.#onFinish = onFinish;
-    this.scramble = makeScramble();
   }
 
   get stages(): readonly StageName[] {
@@ -71,10 +67,6 @@ export class Timer {
     const st = this.stages;
     const i = this.marks.length;
     return i < st.length - 1 ? `${st[i + 1]} へ` : 'ストップ';
-  }
-
-  newScramble(): void {
-    this.scramble = makeScramble();
   }
 
   /** 押した瞬間。計測中なら区間を刻み、idle なら構える。 */
@@ -153,13 +145,11 @@ export class Timer {
               name,
               ms: Math.round(this.marks[i] - (i > 0 ? this.marks[i - 1] : this.t0)),
             })),
-      scramble: this.scramble,
     };
     this.status = 'idle';
     this.justSaved = true;
     this.now = last;
     this.#onFinish(solve);
-    this.newScramble();
   }
 
   #loop = (): void => {

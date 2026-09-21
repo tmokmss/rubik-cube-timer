@@ -56,7 +56,8 @@ export interface Solve {
   total: number;
   /** 空配列なら合計のみの記録。 */
   splits: Split[];
-  scramble: string;
+  /** 過去の記録にだけ残っている。今は生成していない。 */
+  scramble?: string;
 }
 
 /**

@@ -92,12 +92,13 @@ function normalizeSolve(raw: unknown, fallbackId: () => string): Solve | null {
       splits.push({ name: name as StageName, ms: Math.round(ms) });
     }
   }
+  const scramble = typeof r.scramble === 'string' ? r.scramble.trim() : '';
   return {
     id: typeof r.id === 'string' && r.id ? r.id : fallbackId(),
     at,
     total: Math.round(total),
     splits,
-    scramble: typeof r.scramble === 'string' ? r.scramble : '',
+    ...(scramble ? { scramble } : {}),
   };
 }
 
@@ -138,12 +139,13 @@ function fromCsv(text: string): Solve[] {
     const trimmed =
       has.has('OLL') && has.has('PLL') ? splits.filter((s) => s.name !== 'LL') : splits;
 
+    const scramble = iScramble >= 0 ? (c[iScramble] ?? '').trim() : '';
     out.push({
       id: newId(),
       at: d.toISOString(),
       total: Math.round(total),
       splits: trimmed,
-      scramble: iScramble >= 0 ? (c[iScramble] ?? '').trim() : '',
+      ...(scramble ? { scramble } : {}),
     });
   }
   if (!out.length) throw new ImportError('取り込める行がありませんでした。');

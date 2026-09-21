@@ -36,7 +36,6 @@
   class:armed={timer.armed}
   {onpointerdown}
 >
-  <div id="scramble" class="num">{timer.scramble}</div>
   <div id="time" class="num">{fmt(timer.elapsed)}</div>
 
   {#if stages.length > 1}

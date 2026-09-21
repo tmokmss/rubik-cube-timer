@@ -26,7 +26,6 @@ src/
       types.ts           型、区間の定義、目標の比例配分
       format.ts          時間の表示
       stats.ts           ao5 / ao12 / 区間平均
-      scramble.ts        スクランブル生成
       storage.ts         localStorage の読み書き
       io.ts              JSON / CSV の書き出しと取り込み
       keys.ts            Space をどこで拾うかの判定
@@ -108,8 +107,7 @@ localStorage キー: `cube-split-timer:v1`
       "id": "lx3k9a",
       "at": "2026-09-19T10:00:00.000Z",
       "total": 58230,
-      "splits": [{ "name": "Cross", "ms": 5200 }, { "name": "F2L", "ms": 31000 }],
-      "scramble": "R U2 F' ..."
+      "splits": [{ "name": "Cross", "ms": 5200 }, { "name": "F2L", "ms": 31000 }]
     }
   ]
 }
@@ -117,6 +115,9 @@ localStorage キー: `cube-split-timer:v1`
 
 - 時間はすべてミリ秒の整数。`solves` は時系列順(古い順)
 - `splits` が空配列の記録は合計のみ
+- `scramble` は任意。**スクランブルは自分で崩すので、アプリは生成も表示もしない。**
+  以前の記録にだけ残っているので、型と CSV 列は読み書きできるまま残してある
+  (表示だけ消して生成を続けると、一度も回していない手順が記録に残り続けるため両方やめた)
 - **記録は各自の localStorage にしか無い。初期値は空で、アプリ側に記録を埋め込まない**
   (以前は過去のスプレッドシート分9件を初回に流し込んでいたが、他の人が開いても見えてしまうので外した)
 - LLの値は、`LL` がなければ `OLL + PLL` で代用する(`stageMs`)
