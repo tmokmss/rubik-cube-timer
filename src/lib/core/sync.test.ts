@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { mergeDocs, parseSyncDoc, reviveTombstones, tombstoneFor } from './sync';
+import { mergeAll, mergeDocs, parseSyncDoc, reviveTombstones, tombstoneFor } from './sync';
 import type { Solve } from './types';
 
 function solve(id: string, at: string, total: number): Solve {
@@ -109,5 +109,34 @@ describe('parseSyncDoc', () => {
     expect(parseSyncDoc(null)).toBeNull();
     expect(parseSyncDoc({ nope: 1 })).toBeNull();
     expect(parseSyncDoc('{}')).toBeNull();
+  });
+});
+
+describe('mergeAll', () => {
+  it('複数のファイルを全部混ぜる(初回同期がぶつかって2つできた場合)', () => {
+    const r = mergeAll({ solves: [a], deleted: [] }, [
+      { solves: [b], deleted: [] },
+      { solves: [c], deleted: [] },
+    ]);
+    expect(r.solves.map((s) => s.id)).toEqual(['a', 'b', 'c']);
+    expect(r.added).toBe(2);
+  });
+
+  it('どのファイルの墓標でも消える', () => {
+    const r = mergeAll({ solves: [a, b], deleted: [] }, [
+      { solves: [], deleted: [] },
+      { solves: [], deleted: [tombstoneFor(b)] },
+    ]);
+    expect(r.solves.map((s) => s.id)).toEqual(['a']);
+    expect(r.removed).toBe(1);
+  });
+
+  it('相手が1つも無くても、重複を畳んで期限切れの墓標を落とす', () => {
+    const dup = solve('other-id', a.at, a.total);
+    const old = { ...tombstoneFor(c), at: '2020-01-01T00:00:00.000Z' };
+    const r = mergeAll({ solves: [a, dup], deleted: [old] }, []);
+    expect(r.solves.map((s) => s.id)).toEqual(['a']);
+    expect(r.deleted).toEqual([]);
+    expect(r.added).toBe(0);
   });
 });

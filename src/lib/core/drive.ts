@@ -31,20 +31,42 @@ async function call(url: string, token: string, init: RequestInit = {}): Promise
   return res;
 }
 
+/** appDataFolder に置いた保存ファイル。 */
+export interface RemoteFile {
+  id: string;
+  /**
+   * サーバー側の更新ごとに増える番号。書き込む直前にもう一度読んで、
+   * 間に他の端末が書いていないかを確かめるために使う。
+   */
+  version: string;
+}
+
 /**
- * appDataFolder の中の保存ファイルを探す。無ければ null。
+ * appDataFolder の中の保存ファイルを古い順に返す。
  * appDataFolder はこのアプリ専用の隠しフォルダで、利用者の他のファイルは見えない。
+ *
+ * 常に1つのはずだが、2台の初回同期がぶつかると2つできうる。どれを正とするかが
+ * 端末ごとにぶれないよう `createdTime` で並べ、読むときは見つかった全部を混ぜる。
  */
-export async function findFileId(token: string): Promise<string | null> {
+export async function findFiles(token: string): Promise<RemoteFile[]> {
   const url = new URL(`${API}/files`);
   url.searchParams.set('spaces', 'appDataFolder');
   url.searchParams.set('q', `name = '${SYNC_FILE_NAME}' and trashed = false`);
-  url.searchParams.set('fields', 'files(id,modifiedTime)');
+  url.searchParams.set('fields', 'files(id,version)');
+  url.searchParams.set('orderBy', 'createdTime');
   url.searchParams.set('pageSize', '10');
   const json = (await (await call(url.toString(), token)).json()) as {
-    files?: Array<{ id: string }>;
+    files?: Array<{ id: string; version?: string }>;
   };
-  return json.files?.[0]?.id ?? null;
+  return (json.files ?? []).map((f) => ({ id: f.id, version: f.version ?? '' }));
+}
+
+/** 書き込む直前の突き合わせ用。`findFiles` が返した `version` と比べる。 */
+export async function fileVersion(token: string, fileId: string): Promise<string> {
+  const json = (await (
+    await call(`${API}/files/${encodeURIComponent(fileId)}?fields=version`, token)
+  ).json()) as { version?: string };
+  return json.version ?? '';
 }
 
 /**

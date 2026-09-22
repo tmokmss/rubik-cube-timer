@@ -90,6 +90,26 @@ export function mergeDocs(local: SyncSide, remote: SyncSide, now = Date.now()): 
   return { solves, deleted: [...tombs.values()], added, removed };
 }
 
+/**
+ * 手元と、Drive から拾った中身をまとめてマージする。
+ *
+ * ファイルは常に1つのはずだが、2台の初回同期がぶつかると2つできうる。
+ * 片方を無視すると、そちらにしか無い記録が取り残されるので、見つかった分は全部混ぜる。
+ * 相手が1つも無いときも1回通して、期限切れの墓標を落とし、重複を畳んでおく。
+ */
+export function mergeAll(local: SyncSide, remotes: SyncSide[], now = Date.now()): MergeDocsResult {
+  let side: SyncSide = local;
+  let added = 0;
+  let removed = 0;
+  for (const remote of remotes.length ? remotes : [{ solves: [], deleted: [] }]) {
+    const m = mergeDocs(side, remote, now);
+    side = { solves: m.solves, deleted: m.deleted };
+    added += m.added;
+    removed += m.removed;
+  }
+  return { ...side, added, removed };
+}
+
 /** 取り込んだ記録に対応する墓標を外す(明示的に入れ直したのだから復活させる)。 */
 export function reviveTombstones(deleted: Tombstone[], revived: Solve[]): Tombstone[] {
   const ids = new Set(revived.map((s) => s.id));
