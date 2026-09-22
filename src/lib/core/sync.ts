@@ -110,13 +110,6 @@ export function mergeAll(local: SyncSide, remotes: SyncSide[], now = Date.now())
   return { ...side, added, removed };
 }
 
-/** 取り込んだ記録に対応する墓標を外す(明示的に入れ直したのだから復活させる)。 */
-export function reviveTombstones(deleted: Tombstone[], revived: Solve[]): Tombstone[] {
-  const ids = new Set(revived.map((s) => s.id));
-  const sigs = new Set(revived.map(solveSignature));
-  return deleted.filter((t) => !ids.has(t.id) && !sigs.has(t.sig));
-}
-
 /** Drive から落としてきた中身を検証する。壊れていれば null。 */
 export function parseSyncDoc(raw: unknown): SyncSide | null {
   if (!raw || typeof raw !== 'object') return null;
