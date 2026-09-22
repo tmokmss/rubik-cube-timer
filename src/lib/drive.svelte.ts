@@ -27,6 +27,9 @@ const LAST_SYNC_KEY = 'cube-split-timer:drive-last-sync';
  */
 const ACCOUNT_KEY = 'cube-split-timer:drive-account';
 
+/** アクセストークンの置き場。持たせている理由は `#token` のコメント。 */
+const TOKEN_KEY = 'cube-split-timer:drive-token';
+
 function readLocal(key: string): string | null {
   try {
     return localStorage.getItem(key);
@@ -56,9 +59,36 @@ class DriveSync {
   message = $state<{ kind: 'ok' | 'ng'; text: string } | null>(null);
   lastSyncedAt = $state<string | null>(readLocal(LAST_SYNC_KEY));
 
-  /** アクセストークンは localStorage には置かない(資格情報なので記憶に留める)。 */
+  /**
+   * アクセストークンは localStorage に持つ。開き直しても期限内なら認可をやり直さずに済む。
+   *
+   * 資格情報の永続化は本来避けたいが、このアプリでは割に合うと判断した。
+   * スコープは `drive.appdata` だけなので、漏れても読めるのは**このアプリの隠しフォルダ**
+   * だけ。有効期間は1時間。描画は全部 Svelte のエスケープを通り(`@html` も `innerHTML` も
+   * 使っていない)、実行時依存はゼロ、他人のコンテンツを表示する経路も無いので、
+   * 盗み出す側の足場が無い。
+   *
+   * ビルド時にサプライチェーンを汚染された場合は取られるが、それはメモリに置いていても
+   * `callback` をフックされて同じこと。localStorage にするかどうかで露出は変わらない。
+   */
   #token: string | null = null;
   #expiresAt = 0;
+
+  constructor() {
+    const raw = readLocal(TOKEN_KEY);
+    if (!raw) return;
+    try {
+      const saved = JSON.parse(raw) as { token?: unknown; expiresAt?: unknown };
+      if (typeof saved.token === 'string' && typeof saved.expiresAt === 'number') {
+        this.#token = saved.token;
+        this.#expiresAt = saved.expiresAt;
+      }
+    } catch {
+      // 壊れていたら無かったことにして取り直す。
+    }
+    // 期限切れを抱えたままにしない。
+    if (!this.#token || Date.now() >= this.#expiresAt) this.#forgetToken();
+  }
 
   async sync(): Promise<void> {
     if (this.working) return;
@@ -120,6 +150,7 @@ class DriveSync {
   #forgetToken(): void {
     this.#token = null;
     this.#expiresAt = 0;
+    removeLocal(TOKEN_KEY);
   }
 
   /**
@@ -169,6 +200,7 @@ class DriveSync {
           }
           this.#token = res.access_token;
           this.#expiresAt = Date.now() + Number(res.expires_in ?? 3600) * 1000;
+          writeLocal(TOKEN_KEY, JSON.stringify({ token: this.#token, expiresAt: this.#expiresAt }));
           writeLocal(CONSENTED_KEY, '1');
           resolve(res.access_token);
         },
