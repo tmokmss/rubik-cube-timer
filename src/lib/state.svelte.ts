@@ -1,5 +1,5 @@
 import { loadStore, saveStore } from './core/storage';
-import { reviveTombstones, tombstoneFor } from './core/sync';
+import { tombstoneFor } from './core/sync';
 import {
   DEFAULT_GOAL_MS,
   type GoalMs,
@@ -78,14 +78,6 @@ class AppState {
     this.solves = this.solves.filter((s) => s.id !== id);
     // 墓標を残さないと、次の同期で相手から復活してしまう。
     if (target) this.deleted = [...this.deleted, tombstoneFor($state.snapshot(target) as Solve)];
-    this.persist();
-  }
-
-  /** ファイルからの取り込み。明示的に入れ直したものは墓標を外して復活させる。 */
-  replaceAll(solves: Solve[]): void {
-    const next = [...solves].sort(byTime);
-    this.deleted = reviveTombstones($state.snapshot(this.deleted) as Tombstone[], next);
-    this.solves = next;
     this.persist();
   }
 

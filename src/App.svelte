@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import DataPanel from './lib/components/DataPanel.svelte';
   import History from './lib/components/History.svelte';
   import StageTable from './lib/components/StageTable.svelte';
   import StatsBar from './lib/components/StatsBar.svelte';
@@ -215,14 +214,6 @@
   />
 
   <SyncPanel />
-
-  <DataPanel
-    solves={app.solves}
-    onReplace={(s) => {
-      app.replaceAll(s);
-      driveSync.changed();
-    }}
-  />
 
   <footer class="credit">
     <a href="https://github.com/tmokmss/rubik-cube-timer" target="_blank" rel="noopener noreferrer">

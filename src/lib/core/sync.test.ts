@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { mergeAll, mergeDocs, parseSyncDoc, reviveTombstones, tombstoneFor } from './sync';
+import { mergeAll, mergeDocs, parseSyncDoc, tombstoneFor } from './sync';
 import type { Solve } from './types';
 
 function solve(id: string, at: string, total: number): Solve {
@@ -86,13 +86,6 @@ describe('mergeDocs', () => {
     );
     expect(r.solves.map((s) => s.id)).toEqual(['a']);
     expect(r.deleted).toHaveLength(0);
-  });
-});
-
-describe('reviveTombstones', () => {
-  it('明示的に取り込み直した記録の墓標は外す', () => {
-    const left = reviveTombstones([tombstoneFor(a), tombstoneFor(b)], [b]);
-    expect(left.map((t) => t.id)).toEqual(['a']);
   });
 });
 
