@@ -26,9 +26,19 @@
     <p class="io-msg {driveSync.message.kind}">{driveSync.message.text}</p>
   {/if}
 
+  {#if driveSync.needsAuth}
+    <p class="io-help">
+      {driveSync.pending ? 'まだ送れていない変更があります。' : ''}Google
+      の許可が切れて自動同期が止まっています。押すと再開します。
+    </p>
+  {:else if driveSync.pending && !driveSync.working}
+    <p class="io-help">まだ送れていない変更があります。</p>
+  {/if}
+
   <p class="io-help">
     記録を自分の Google Drive の「アプリ専用フォルダ」に置いて、スマホと PC で揃えます。
-    このアプリが作ったファイル以外は見えません。両方の端末で押すと双方向に揃い、
-    片方で消した記録は相手でも消えます。
+    このアプリが作ったファイル以外は見えません。一度押すと、記録を取ったとき・消したとき・
+    アプリを開いたときに自動で揃うようになります。ただし Google の許可は1時間で切れるので、
+    そのあとは押して繋ぎ直します(勝手に Google の画面を出さないため)。
   </p>
 </section>

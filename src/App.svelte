@@ -9,6 +9,7 @@
   import TimerPad from './lib/components/TimerPad.svelte';
   import { isTextEntry, restoreFocus } from './lib/core/keys';
   import type { GoalMs, Mode } from './lib/core/types';
+  import { driveSync } from './lib/drive.svelte';
   import { pwa } from './lib/pwa.svelte';
   import { app } from './lib/state.svelte';
   import { Timer, type FinishedSolve } from './lib/timer.svelte';
@@ -22,8 +23,11 @@
 
   const timer = new Timer(
     () => app.stages,
-    (s: FinishedSolve) =>
-      app.add({ id: Date.now().toString(36), at: new Date().toISOString(), ...s }),
+    (s: FinishedSolve) => {
+      app.add({ id: Date.now().toString(36), at: new Date().toISOString(), ...s });
+      // 記録が増えたら少し後に Drive へ送る。押せなければ黙って次の機会に回る。
+      driveSync.changed();
+    },
   );
 
   // 練習中に画面が消えないようにする。無操作が続けば自分から手放す。
@@ -38,9 +42,12 @@
   onMount(() => {
     restoreFocus(padEl);
     pwa.register();
+    // 開いたら他の端末の記録を取りに行く。認可が無言で取れないときは何も起きない。
+    driveSync.resume();
     return () => {
       timer.destroy();
       wakeLock.destroy();
+      driveSync.destroy();
     };
   });
 
@@ -96,6 +103,12 @@
     timer.disarm();
   }
 
+  /** 画面に戻ってきたとき。PWA は閉じても再読み込みされないので、ここが「開いた」に当たる。 */
+  function onVisibilityChange() {
+    wakeLock.syncWithVisibility();
+    if (document.visibilityState === 'visible') driveSync.resume();
+  }
+
   function onFocusChange() {
     typing = isTextEntry(document.activeElement);
   }
@@ -131,11 +144,12 @@
   onpointerup={() => timer.release()}
   onpointercancel={() => timer.disarm()}
   onblur={onWindowBlur}
+  ononline={() => driveSync.resume()}
   onfocusin={onFocusChange}
   onfocusout={onFocusChange}
 />
 
-<svelte:document onvisibilitychange={() => wakeLock.syncWithVisibility()} />
+<svelte:document onvisibilitychange={onVisibilityChange} />
 
 {#if timer.running}
   <!-- 透明な膜。計測中に下の「削除」等を誤って叩かないようにする。 -->
@@ -192,11 +206,23 @@
 
   <TrendPanel solves={app.solves} mode={app.mode} goalMs={app.goalMs} />
 
-  <History solves={app.solves} onDelete={(id) => app.remove(id)} />
+  <History
+    solves={app.solves}
+    onDelete={(id) => {
+      app.remove(id);
+      driveSync.changed();
+    }}
+  />
 
   <SyncPanel />
 
-  <DataPanel solves={app.solves} onReplace={(s) => app.replaceAll(s)} />
+  <DataPanel
+    solves={app.solves}
+    onReplace={(s) => {
+      app.replaceAll(s);
+      driveSync.changed();
+    }}
+  />
 
   <footer class="credit">
     <a href="https://github.com/tmokmss/rubik-cube-timer" target="_blank" rel="noopener noreferrer">
