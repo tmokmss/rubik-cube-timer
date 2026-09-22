@@ -47,6 +47,20 @@ export async function findFileId(token: string): Promise<string | null> {
   return json.files?.[0]?.id ?? null;
 }
 
+/**
+ * 同期に使っているアカウントのメールアドレス。次の認可で `login_hint` に渡し、
+ * アカウント選択の画面を出させないためだけに使う。
+ *
+ * `about.get` は `drive.appdata` スコープで呼べるので、これのためにスコープは増えない。
+ * `fields` は必須。
+ */
+export async function findAccountEmail(token: string): Promise<string | null> {
+  const json = (await (await call(`${API}/about?fields=user(emailAddress)`, token)).json()) as {
+    user?: { emailAddress?: string };
+  };
+  return json.user?.emailAddress ?? null;
+}
+
 export async function download(token: string, fileId: string): Promise<unknown> {
   const res = await call(`${API}/files/${encodeURIComponent(fileId)}?alt=media`, token);
   return res.json().catch(() => null);

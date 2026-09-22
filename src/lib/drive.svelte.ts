@@ -21,6 +21,15 @@ const GIS_SRC = 'https://accounts.google.com/gsi/client';
 const CONSENTED_KEY = 'cube-split-timer:drive-consented';
 const LAST_SYNC_KEY = 'cube-split-timer:drive-last-sync';
 
+/**
+ * 同期しているアカウントのメールアドレス。認可のヒントに使うだけで、資格情報ではない。
+ * 理由は `#getToken` のコメント。
+ */
+const ACCOUNT_KEY = 'cube-split-timer:drive-account';
+
+/** アクセストークンの置き場。持たせている理由は `#token` のコメント。 */
+const TOKEN_KEY = 'cube-split-timer:drive-token';
+
 function readLocal(key: string): string | null {
   try {
     return localStorage.getItem(key);
@@ -37,14 +46,49 @@ function writeLocal(key: string, value: string): void {
   }
 }
 
+function removeLocal(key: string): void {
+  try {
+    localStorage.removeItem(key);
+  } catch {
+    // 同上。
+  }
+}
+
 class DriveSync {
   working = $state(false);
   message = $state<{ kind: 'ok' | 'ng'; text: string } | null>(null);
   lastSyncedAt = $state<string | null>(readLocal(LAST_SYNC_KEY));
 
-  /** アクセストークンは localStorage には置かない(資格情報なので記憶に留める)。 */
+  /**
+   * アクセストークンは localStorage に持つ。開き直しても期限内なら認可をやり直さずに済む。
+   *
+   * 資格情報の永続化は本来避けたいが、このアプリでは割に合うと判断した。
+   * スコープは `drive.appdata` だけなので、漏れても読めるのは**このアプリの隠しフォルダ**
+   * だけ。有効期間は1時間。描画は全部 Svelte のエスケープを通り(`@html` も `innerHTML` も
+   * 使っていない)、実行時依存はゼロ、他人のコンテンツを表示する経路も無いので、
+   * 盗み出す側の足場が無い。
+   *
+   * ビルド時にサプライチェーンを汚染された場合は取られるが、それはメモリに置いていても
+   * `callback` をフックされて同じこと。localStorage にするかどうかで露出は変わらない。
+   */
   #token: string | null = null;
   #expiresAt = 0;
+
+  constructor() {
+    const raw = readLocal(TOKEN_KEY);
+    if (!raw) return;
+    try {
+      const saved = JSON.parse(raw) as { token?: unknown; expiresAt?: unknown };
+      if (typeof saved.token === 'string' && typeof saved.expiresAt === 'number') {
+        this.#token = saved.token;
+        this.#expiresAt = saved.expiresAt;
+      }
+    } catch {
+      // 壊れていたら無かったことにして取り直す。
+    }
+    // 期限切れを抱えたままにしない。
+    if (!this.#token || Date.now() >= this.#expiresAt) this.#forgetToken();
+  }
 
   async sync(): Promise<void> {
     if (this.working) return;
@@ -52,6 +96,7 @@ class DriveSync {
     this.message = null;
     try {
       const token = await this.#getToken();
+      await this.#rememberAccount(token);
       const fileId = await drive.findFileId(token);
       const remote = fileId ? parseSyncDoc(await drive.download(token, fileId)) : null;
 
@@ -105,12 +150,42 @@ class DriveSync {
   #forgetToken(): void {
     this.#token = null;
     this.#expiresAt = 0;
+    removeLocal(TOKEN_KEY);
   }
 
+  /**
+   * 次の認可でアカウント選択を飛ばせるように、同期しているアカウントを覚える。
+   * 一度取れたら聞き直さない。取れなくても同期は動く(選択画面が出るだけ)ので黙って諦める。
+   */
+  async #rememberAccount(token: string): Promise<void> {
+    if (readLocal(ACCOUNT_KEY)) return;
+    try {
+      const email = await drive.findAccountEmail(token);
+      if (email) writeLocal(ACCOUNT_KEY, email);
+    } catch {
+      // ヒントが無いままでも困らない。
+    }
+  }
+
+  /**
+   * トークンはメモリにしか無いので、アプリを開き直すたびにここを通る。
+   * したがって「画面を出さずに取り直せるか」が使い勝手をほぼ決める。
+   *
+   * `prompt: ''` は GIS の中で「認可 URL から `prompt` を落とす」に化ける
+   * (`''` は `undefined` でも truthy でもないので、既定の `select_account` も付かない)。
+   * こうすると Google 側の判断に委ねられ、同意済みのアカウントが一意に決まるときだけ
+   * 無言でトークンが返る。
+   *
+   * **`hint` を省くとここが「一意に決まらない」に倒れる。** Google に複数アカウントで
+   * ログインしていると、毎回アカウント選択が出る。メールアドレスを `login_hint` として
+   * 渡して、どれを使うかをこちらで指定する。
+   */
   async #getToken(): Promise<string> {
     // 期限ぎりぎりのトークンで往復を始めない。
     if (this.#token && Date.now() < this.#expiresAt - 60_000) return this.#token;
     await this.#loadGis();
+
+    const hint = readLocal(ACCOUNT_KEY);
 
     return new Promise<string>((resolve, reject) => {
       const client = google.accounts.oauth2.initTokenClient({
@@ -118,19 +193,25 @@ class DriveSync {
         scope: SCOPE,
         callback: (res) => {
           if (res.error || !res.access_token) {
+            // ヒントのアカウントが使えないまま覚えていると詰む。次は選び直させる。
+            removeLocal(ACCOUNT_KEY);
             reject(new Error(res.error_description || res.error || '認可されませんでした。'));
             return;
           }
           this.#token = res.access_token;
           this.#expiresAt = Date.now() + Number(res.expires_in ?? 3600) * 1000;
+          writeLocal(TOKEN_KEY, JSON.stringify({ token: this.#token, expiresAt: this.#expiresAt }));
           writeLocal(CONSENTED_KEY, '1');
           resolve(res.access_token);
         },
+        // ウィンドウを閉じただけ。意図的な取り消しなのでヒントは捨てない。
         error_callback: (err) =>
           reject(new Error(err.message || '認可のウィンドウが閉じられました。')),
       });
-      // 一度許可していれば、たいていは画面を出さずに取り直せる。
-      client.requestAccessToken({ prompt: readLocal(CONSENTED_KEY) ? '' : 'consent' });
+      client.requestAccessToken({
+        prompt: readLocal(CONSENTED_KEY) ? '' : 'consent',
+        ...(hint ? { hint } : {}),
+      });
     });
   }
 

@@ -20,8 +20,12 @@ declare namespace google.accounts.oauth2 {
     prompt?: '' | 'none' | 'consent' | 'select_account';
   }
 
+  /**
+   * `hint` は次回以降アカウント選択を飛ばすためのメールアドレス。
+   * GIS 側で `login_hint` に読み替えられて認可 URL に載る。
+   */
   interface TokenClient {
-    requestAccessToken(overrides?: { prompt?: string }): void;
+    requestAccessToken(overrides?: { prompt?: string; hint?: string }): void;
   }
 
   function initTokenClient(config: TokenClientConfig): TokenClient;
