@@ -1,10 +1,14 @@
-/** 区間の数。UI のセグメントコントロールと localStorage の `mode` に対応する。 */
-export type Mode = '4' | '3' | '1';
+/**
+ * 区間の数。UI のセグメントコントロールと localStorage の `mode` に対応する。
+ * `f2l` は F2L だけを測る練習用(Cross は測らずに組んでからスタートする)。
+ */
+export type Mode = '4' | '3' | '1' | 'f2l';
 
 export const STAGE_SETS = {
   '4': ['Cross', 'F2L', 'OLL', 'PLL'],
   '3': ['Cross', 'F2L', 'LL'],
   '1': ['全体'],
+  f2l: ['F2L'],
 } as const satisfies Record<Mode, readonly string[]>;
 
 export type StageName = (typeof STAGE_SETS)[Mode][number];
@@ -96,7 +100,7 @@ export interface StoreData {
 export const STORAGE_KEY = 'cube-split-timer:v1';
 
 export function isMode(v: unknown): v is Mode {
-  return v === '4' || v === '3' || v === '1';
+  return v === '4' || v === '3' || v === '1' || v === 'f2l';
 }
 
 export function isGoalMs(v: unknown): v is GoalMs {
@@ -107,11 +111,31 @@ export function stagesOf(mode: Mode): readonly StageName[] {
   return STAGE_SETS[mode];
 }
 
+/** 区間を記録に残すか。合計のみ(`全体` だけ)のときは splits を空にする。 */
+export function recordsSplits(stages: readonly StageName[]): boolean {
+  return !(stages.length === 1 && stages[0] === '全体');
+}
+
+/**
+ * F2L だけを測った練習の記録か。スキーマに種別は持たせず、区間の形で見分ける。
+ * 通しのソルブとはタイムの桁が違うので、集計では混ぜない。
+ */
+export function isF2LOnly(s: Pick<Solve, 'splits'>): boolean {
+  return s.splits.length === 1 && s.splits[0].name === 'F2L';
+}
+
+/** そのモードで集計・表示する記録。F2L 練習と通しのソルブは分けて見る。 */
+export function solvesFor(solves: Solve[], mode: Mode): Solve[] {
+  const f2l = mode === 'f2l';
+  return solves.filter((s) => isF2LOnly(s) === f2l);
+}
+
 /**
  * 集計に使う区間の並び。合計のみモードでも、過去の区間つき記録は4区間で見せる。
  * 積み上げグラフはこの順に下から積む。
  */
 export function splitStagesFor(mode: Mode): readonly SplitStageName[] {
+  if (mode === 'f2l') return ['F2L'] as const;
   return mode === '3'
     ? (['Cross', 'F2L', 'LL'] as const)
     : (['Cross', 'F2L', 'OLL', 'PLL'] as const);

@@ -71,7 +71,8 @@
       </div>
     {/each}
     <p class="legend">
-      <i></i>縦線が目標(合計 {goalMs / 1000} 秒 = {targetLegend} 秒)。平均は直近{agg.sampled}回分。
+      <i></i>縦線が目標(合計 {goalMs / 1000} 秒{mode === 'f2l' ? ' のときの' : ' ='}
+      {targetLegend} 秒)。平均は直近{agg.sampled}回分。
     </p>
   {/if}
 </section>

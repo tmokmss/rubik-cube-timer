@@ -1,4 +1,4 @@
-import type { Split, StageName } from './core/types';
+import { recordsSplits, type Split, type StageName } from './core/types';
 
 export type TimerStatus = 'idle' | 'running';
 export type StickerState = 'done' | 'now' | 'todo';
@@ -138,13 +138,12 @@ export class Timer {
     const last = this.marks[this.marks.length - 1];
     const solve: FinishedSolve = {
       total: Math.round(last - this.t0),
-      splits:
-        st.length === 1
-          ? []
-          : st.map((name, i) => ({
-              name,
-              ms: Math.round(this.marks[i] - (i > 0 ? this.marks[i - 1] : this.t0)),
-            })),
+      splits: !recordsSplits(st)
+        ? []
+        : st.map((name, i) => ({
+            name,
+            ms: Math.round(this.marks[i] - (i > 0 ? this.marks[i - 1] : this.t0)),
+          })),
     };
     this.status = 'idle';
     this.justSaved = true;
