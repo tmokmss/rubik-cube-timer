@@ -1,5 +1,6 @@
 <script lang="ts">
   import { fmt, fmt1 } from '../core/format';
+  import { recordsSplits } from '../core/types';
   import type { Timer } from '../timer.svelte';
 
   let {
@@ -18,11 +19,13 @@
   } = $props();
 
   const stages = $derived(timer.stages);
+  const f2lOnly = $derived(stages.length === 1 && stages[0] === 'F2L');
 
   const hint = $derived.by(() => {
     if (typing) return '文字入力中は Space が効きません。ここをタップすると戻ります';
     if (timer.running) return `Space / タップで ${timer.nextLabel}　Escで中止`;
     if (timer.armed) return '離すとスタート';
+    if (f2lOnly) return 'Cross を組んでから、Space(またはここをタップ)を押して離すと F2L 開始';
     if (timer.justSaved) return '記録しました。Spaceを押して離すと次のソルブ';
     return 'Space(またはここをタップ)を押して離すとスタート';
   });
@@ -38,7 +41,7 @@
 >
   <div id="time" class="num">{fmt(timer.elapsed)}</div>
 
-  {#if stages.length > 1}
+  {#if recordsSplits(stages)}
     <div id="stickers" style="grid-template-columns:repeat({stages.length},1fr)">
       {#each stages as name, i (name)}
         <div class="sticker {timer.stickerState(i)}" data-stage={name}>

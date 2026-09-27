@@ -36,6 +36,7 @@
     { value: '4', label: '4区間' },
     { value: '3', label: '3区間' },
     { value: '1', label: '合計のみ' },
+    { value: 'f2l', label: 'F2Lのみ' },
   ];
 
   onMount(() => {
@@ -196,17 +197,22 @@
   <StatsBar totals={app.totals} />
 
   <StageTable
-    solves={app.solves}
+    solves={app.visibleSolves}
     mode={app.mode}
     goalMs={app.goalMs}
     targets={app.targets}
     onGoalChange={setGoal}
   />
 
-  <TrendPanel solves={app.solves} mode={app.mode} goalMs={app.goalMs} />
+  <TrendPanel
+    solves={app.visibleSolves}
+    mode={app.mode}
+    goalMs={app.goalMs}
+    targets={app.targets}
+  />
 
   <History
-    solves={app.solves}
+    solves={app.visibleSolves}
     onDelete={(id) => {
       app.remove(id);
       driveSync.changed();

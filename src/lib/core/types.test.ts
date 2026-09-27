@@ -1,5 +1,16 @@
 import { describe, expect, it } from 'vitest';
-import { GOALS_MS, isGoalMs, isMode, splitStagesFor, stagesOf, targetsFor } from './types';
+import {
+  GOALS_MS,
+  isF2LOnly,
+  isGoalMs,
+  isMode,
+  recordsSplits,
+  solvesFor,
+  splitStagesFor,
+  stagesOf,
+  targetsFor,
+  type Solve,
+} from './types';
 
 describe('targetsFor', () => {
   it('30秒はそのまま', () => {
@@ -35,6 +46,7 @@ describe('targetsFor', () => {
 describe('guards', () => {
   it('mode', () => {
     expect(isMode('4')).toBe(true);
+    expect(isMode('f2l')).toBe(true);
     expect(isMode('2')).toBe(false);
   });
 
@@ -47,6 +59,13 @@ describe('guards', () => {
   it('stages', () => {
     expect(stagesOf('4')).toEqual(['Cross', 'F2L', 'OLL', 'PLL']);
     expect(stagesOf('1')).toEqual(['全体']);
+    expect(stagesOf('f2l')).toEqual(['F2L']);
+  });
+
+  it('合計のみのときだけ区間を残さない', () => {
+    expect(recordsSplits(stagesOf('1'))).toBe(false);
+    expect(recordsSplits(stagesOf('f2l'))).toBe(true);
+    expect(recordsSplits(stagesOf('4'))).toBe(true);
   });
 
   it('集計用の区間は3区間のときだけ LL になる', () => {
@@ -54,5 +73,36 @@ describe('guards', () => {
     expect(splitStagesFor('4')).toEqual(['Cross', 'F2L', 'OLL', 'PLL']);
     // 合計のみモードでも、過去の区間つき記録は4区間で見せる
     expect(splitStagesFor('1')).toEqual(['Cross', 'F2L', 'OLL', 'PLL']);
+    expect(splitStagesFor('f2l')).toEqual(['F2L']);
+  });
+});
+
+describe('F2L 練習の記録', () => {
+  const mk = (id: string, splits: Solve['splits']): Solve => ({
+    id,
+    at: '2026-09-27T00:00:00.000Z',
+    total: splits.reduce((p, c) => p + c.ms, 0) || 40_000,
+    splits,
+  });
+  const full = mk('full', [
+    { name: 'Cross', ms: 4000 },
+    { name: 'F2L', ms: 16_000 },
+    { name: 'LL', ms: 10_000 },
+  ]);
+  const total = mk('total', []);
+  const f2l = mk('f2l', [{ name: 'F2L', ms: 15_000 }]);
+
+  it('F2L だけの区間を持つ記録を見分ける', () => {
+    expect(isF2LOnly(f2l)).toBe(true);
+    expect(isF2LOnly(full)).toBe(false);
+    expect(isF2LOnly(total)).toBe(false);
+  });
+
+  it('F2L モードでは F2L 練習だけ、他では F2L 練習を除く', () => {
+    const all = [full, f2l, total];
+    expect(solvesFor(all, 'f2l').map((s) => s.id)).toEqual(['f2l']);
+    for (const m of ['4', '3', '1'] as const) {
+      expect(solvesFor(all, m).map((s) => s.id)).toEqual(['full', 'total']);
+    }
   });
 });

@@ -8,6 +8,7 @@ import {
   type SplitStageName,
   type StageName,
   type Tombstone,
+  solvesFor,
   stagesOf,
   targetsFor,
 } from './core/types';
@@ -29,8 +30,13 @@ class AppState {
     return stagesOf(this.mode);
   }
 
+  /** 今のモードで集計・表示する記録。F2L 練習と通しのソルブは混ぜない。 */
+  get visibleSolves(): Solve[] {
+    return solvesFor(this.solves, this.mode);
+  }
+
   get totals(): number[] {
-    return this.solves.map((s) => s.total);
+    return this.visibleSolves.map((s) => s.total);
   }
 
   /** 目標の合計タイムから比例配分した区間ごとの目安。 */

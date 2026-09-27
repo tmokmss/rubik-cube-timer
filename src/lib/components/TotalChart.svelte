@@ -1,9 +1,10 @@
 <script lang="ts">
   import { fmt } from '../core/format';
   import { aoN } from '../core/stats';
-  import type { GoalMs, Solve } from '../core/types';
+  import type { Solve } from '../core/types';
 
-  let { solves, goalMs }: { solves: Solve[]; goalMs: GoalMs } = $props();
+  /** 破線を引く目標。F2L 練習のときは F2L の目安が入る。 */
+  let { solves, goalMs }: { solves: Solve[]; goalMs: number } = $props();
 
   const W = 680;
   const H = 210;
