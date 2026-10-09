@@ -9,7 +9,7 @@
     moving?: { move: Move; progress: number };
   } = $props();
 
-  const S = 46;
+  const S = 56;
 
   // 面の法線(モデルは y が上)→ その面を立てる CSS。CSS は y が下向き
   const FACES: Array<{ n: Vec; css: string; color: string }> = [

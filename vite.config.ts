@@ -8,6 +8,14 @@ const base = '/rubik-cube-timer/';
 
 export default defineConfig({
   base,
+  build: {
+    rollupOptions: {
+      input: {
+        main: 'index.html',
+        f2l: 'f2l/index.html',
+      },
+    },
+  },
   plugins: [
     svelte(),
     VitePWA({

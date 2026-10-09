@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import F2LPanel from './lib/components/F2LPanel.svelte';
   import History from './lib/components/History.svelte';
   import StageTable from './lib/components/StageTable.svelte';
   import StatsBar from './lib/components/StatsBar.svelte';
@@ -212,8 +211,6 @@
     targets={app.targets}
   />
 
-  <F2LPanel />
-
   <History
     solves={app.visibleSolves}
     onDelete={(id) => {
@@ -225,6 +222,7 @@
   <SyncPanel />
 
   <footer class="credit">
+    <a href="f2l/">F2L の手順</a>
     <a href="https://github.com/tmokmss/rubik-cube-timer" target="_blank" rel="noopener noreferrer">
       <svg viewBox="0 0 16 16" aria-hidden="true">
         <path

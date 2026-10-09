@@ -15,6 +15,7 @@ Svelte コンポーネントは表示と入力だけを持つ。フレームワ�
 src/
   main.ts                エントリ
   App.svelte             配線。キー入力とフォーカスの面倒はここで見る
+  f2l.ts / F2LApp.svelte F2L の手順ページ(f2l/index.html から読む)
   app.css                全部グローバル(理由は下記)
   lib/
     state.svelte.ts      記録・モード・目標の保持と localStorage への書き戻し
@@ -268,8 +269,12 @@ Drive のファイルは **last-writer-wins** で、条件付き更新の手段�
 
 ## F2L の手順
 
-パネルでケースを選ぶと、3D のキューブで手順を 1 手ずつ回して見せる。描画は CSS の 3D 変形
+別ページ(`f2l/index.html` → `src/f2l.ts` → `F2LApp.svelte`)。タイマーのページ末尾からリンクしている。
+ケースを選ぶと、3D のキューブで手順を 1 手ずつ回して見せる。描画は CSS の 3D 変形
 (`CubeView.svelte`)で、ライブラリは使っていない。
+
+- ページを増やすときは `vite.config.ts` の `build.rollupOptions.input` にも足す。
+  足さないと dev では見えても本番のビルドに入らない
 
 - 手順を差し替えたら `pnpm test`。手順の逆を当てると他のスロットを崩さない F2L の形になること、
   SpeedCubeDB の同じ番号のケースと一致すること、41 ケースで全パターンを覆うことを確かめる
