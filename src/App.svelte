@@ -171,7 +171,10 @@
   {/if}
 
   <header>
-    <h1>キューブ区間タイマー</h1>
+    <div class="title">
+      <h1>キューブ区間タイマー</h1>
+      <a href="algs/">手順</a>
+    </div>
     <div class="seg" role="group" aria-label="区間の数">
       {#each MODES as m (m.value)}
         <button

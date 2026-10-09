@@ -15,6 +15,7 @@ Svelte コンポーネントは表示と入力だけを持つ。フレームワ�
 src/
   main.ts                エントリ
   App.svelte             配線。キー入力とフォーカスの面倒はここで見る
+  algs.ts / AlgsApp.svelte 手順ページ(algs/index.html から読む)
   app.css                全部グローバル(理由は下記)
   lib/
     state.svelte.ts      記録・モード・目標の保持と localStorage への書き戻し
@@ -22,6 +23,8 @@ src/
     wakelock.svelte.ts   練習中に画面を消させない
     pwa.svelte.ts        Service Worker の更新通知
     drive.svelte.ts      Google Drive 同期(認証と進行)
+    algs.svelte.ts       手順を頭から通しで回して見せる再生器
+    stickers.ts          シールの色(見なくてよいところを灰色にする)
     core/                UI 非依存。ここだけテストがある
       types.ts           型、区間の定義、目標の比例配分
       format.ts          時間の表示
@@ -30,6 +33,8 @@ src/
       keys.ts            Space をどこで拾うかの判定
       sync.ts            端末間マージと墓標(純関数)
       drive.ts           Drive REST の呼び出し
+      cube.ts            キューブのシミュレータ(27 個の位置と向き)
+      algs.ts            F2L / OLL / PLL の手順。正しさは algs.test.ts がシミュレータで確かめる
     components/          表示のみ
 ```
 
@@ -262,6 +267,21 @@ Drive のファイルは **last-writer-wins** で、条件付き更新の手段�
 - 数字は Saira Semi Condensed(tabular-nums)、本文は Zen Kaku Gothic New
 - ライト/ダーク両対応。色は `:root` のCSS変数で定義。ダークで反転する文言を書かない
   (「黒い線が目標」ではなく「縦線が目標」)
+
+## 手順ページ
+
+別ページ(`algs/index.html` → `src/algs.ts` → `AlgsApp.svelte`)。タイマーの見出しの横からリンクしている。
+F2L / OLL / PLL を切り替えてケースを選び、キューブをタップすると手順を頭から通しで回す。
+描画は CSS の 3D 変形(`CubeView.svelte`)で、ライブラリは使っていない。OLL / PLL は奥の側面が
+3D では見えないので、上から見た図(`LLDiagram.svelte`)も並べる。
+
+- ページを増やすときは `vite.config.ts` の `build.rollupOptions.input` にも足す。
+  足さないと dev では見えても本番のビルドに入らない
+- 手順を差し替えたら `pnpm test`。`algs.test.ts` が、手順の逆を当てるとそのケースの形になること、
+  SpeedCubeDB の同じ番号のセットアップと一致すること、F2L 41 / OLL 57 / PLL 21 で全パターンを
+  覆うことを確かめる
+- 手順が持ち替え(y など)で始まるときは、持ち替える前の持ち方で見せる。向きを直してから手順を
+  当てると、手順の持ち替えと二重になって揃わない
 
 ## 開発
 

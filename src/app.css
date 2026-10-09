@@ -470,6 +470,9 @@ svg text {
   padding: 7px 14px;
   cursor: pointer;
 }
+a.btn {
+  text-decoration: none;
+}
 .btn:hover {
   border-color: var(--muted);
 }
@@ -535,4 +538,150 @@ svg text {
   width: 16px;
   height: 16px;
   fill: currentColor;
+}
+
+/* ---------- 手順 ---------- */
+.title {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+.title a {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.title a:hover {
+  color: var(--ink);
+}
+.alg-pick {
+  display: grid;
+  gap: 8px;
+}
+.alg-group {
+  display: grid;
+  grid-template-columns: 9em 1fr;
+  gap: 8px;
+  align-items: center;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.alg-group div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.alg-group button,
+.alg-moves span {
+  font: inherit;
+  font-family: var(--num);
+  font-weight: 600;
+  color: var(--ink);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+.alg-group button {
+  cursor: pointer;
+  min-width: 2.3em;
+  padding: 3px 4px;
+}
+.alg-group button[aria-pressed='true'] {
+  background: var(--green);
+  border-color: var(--green);
+  color: var(--on-light);
+}
+.alg-view {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+}
+.cube-tap {
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  margin: 0 auto;
+  -webkit-tap-highlight-color: transparent;
+}
+.alg-side {
+  flex: 1 1 220px;
+  display: grid;
+  gap: 12px;
+  justify-items: start;
+}
+.alg-title {
+  font-family: var(--num);
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+}
+.alg-title small {
+  font-family: var(--jp);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--muted);
+  margin-left: 10px;
+}
+.ll {
+  width: 120px;
+  height: 120px;
+}
+.alg-moves {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.alg-moves span {
+  text-align: center;
+  font-size: 1.15rem;
+  min-width: 2.2em;
+  padding: 4px 6px;
+}
+.alg-moves span.done {
+  color: var(--muted);
+}
+.alg-moves span.now {
+  background: var(--yellow);
+  border-color: var(--yellow);
+  color: var(--on-light);
+}
+.alg-note {
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin: 12px 0 0;
+}
+
+.cube3d {
+  --cube-grey: #7b818c;
+  position: relative;
+  width: 310px;
+  height: 300px;
+  perspective: 900px;
+  flex: none;
+}
+.cube3d-scene {
+  position: absolute;
+  left: 50%;
+  top: 52%;
+  transform-style: preserve-3d;
+  transform: rotateX(-27deg) rotateY(-38deg);
+}
+.cubie {
+  position: absolute;
+  width: var(--s);
+  height: var(--s);
+  margin: calc(var(--s) / -2) 0 0 calc(var(--s) / -2);
+  transform-style: preserve-3d;
+}
+.cubie .face {
+  position: absolute;
+  inset: 0;
+  background: #121317;
+  backface-visibility: hidden;
+}
+.cubie .face span {
+  position: absolute;
+  inset: 7%;
+  border-radius: 14%;
 }
