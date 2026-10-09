@@ -1,18 +1,18 @@
-import { invert, normalize, parse, run, solved, type Cube, type Move } from './core/cube';
-import { F2L_CASES, type F2LCase } from './core/f2l';
+import { invert, parse, run, solved, type Cube, type Move } from './core/cube';
+import { ALG_SETS, type AlgCase } from './core/algs';
 
 const MOVE_MS = 650;
 
 /** 手順を頭から通しで回して見せる再生器。描くのは CubeView、ここは今どの状態か だけを持つ。 */
-export class F2LPlayer {
-  case = $state<F2LCase>(F2L_CASES[0]);
+export class AlgPlayer {
+  case = $state<AlgCase>(ALG_SETS.F2L.cases[0]);
   /** 回し終えた手数 */
   step = $state(0);
 
   moves = $derived(parse(this.case.alg));
-  /** states[k] は k 手回したあと。0 がケースの形 */
+  /** states[k] は k 手回したあと。0 がケースの形(手順が持ち替えで始まるなら、持ち替える前の持ち方) */
   states = $derived.by(() => {
-    const out: Cube[] = [normalize(run(solved(), invert(this.moves)))];
+    const out: Cube[] = [run(solved(), invert(this.moves))];
     for (const m of this.moves) out.push(run(out[out.length - 1], [m]));
     return out;
   });
@@ -30,7 +30,7 @@ export class F2LPlayer {
     return { cube: this.states[this.step], moving: { move: this.moves[this.step], progress: p } };
   });
 
-  select(c: F2LCase): void {
+  select(c: AlgCase): void {
     this.#stop();
     this.case = c;
     this.step = 0;

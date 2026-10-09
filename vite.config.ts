@@ -12,7 +12,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: 'index.html',
-        f2l: 'f2l/index.html',
+        algs: 'algs/index.html',
       },
     },
   },

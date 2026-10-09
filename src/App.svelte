@@ -171,7 +171,10 @@
   {/if}
 
   <header>
-    <h1>キューブ区間タイマー</h1>
+    <div class="title">
+      <h1>キューブ区間タイマー</h1>
+      <a href="algs/">手順</a>
+    </div>
     <div class="seg" role="group" aria-label="区間の数">
       {#each MODES as m (m.value)}
         <button
@@ -222,7 +225,6 @@
   <SyncPanel />
 
   <footer class="credit">
-    <a href="f2l/">F2L の手順</a>
     <a href="https://github.com/tmokmss/rubik-cube-timer" target="_blank" rel="noopener noreferrer">
       <svg viewBox="0 0 16 16" aria-hidden="true">
         <path

@@ -518,8 +518,6 @@ a.btn {
 
 /* ---------- フッター ---------- */
 .credit {
-  display: flex;
-  gap: 18px;
   margin-top: 26px;
   padding-top: 14px;
   border-top: 1px solid var(--line);
@@ -542,12 +540,24 @@ a.btn {
   fill: currentColor;
 }
 
-/* ---------- F2L の手順 ---------- */
-.f2l-pick {
+/* ---------- 手順 ---------- */
+.title {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+.title a {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.title a:hover {
+  color: var(--ink);
+}
+.alg-pick {
   display: grid;
   gap: 8px;
 }
-.f2l-group {
+.alg-group {
   display: grid;
   grid-template-columns: 9em 1fr;
   gap: 8px;
@@ -555,13 +565,13 @@ a.btn {
   font-size: 0.85rem;
   color: var(--muted);
 }
-.f2l-group div {
+.alg-group div {
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
 }
-.f2l-group button,
-.f2l-alg span {
+.alg-group button,
+.alg-moves span {
   font: inherit;
   font-family: var(--num);
   font-weight: 600;
@@ -570,64 +580,73 @@ a.btn {
   border: 1px solid var(--line);
   border-radius: 6px;
 }
-.f2l-group button {
+.alg-group button {
   cursor: pointer;
   min-width: 2.3em;
-  padding: 3px 0;
+  padding: 3px 4px;
 }
-.f2l-group button[aria-pressed='true'] {
+.alg-group button[aria-pressed='true'] {
   background: var(--green);
   border-color: var(--green);
   color: var(--on-light);
 }
-.f2l-view {
+.alg-view {
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
   align-items: center;
 }
-.f2l-side {
+.cube-tap {
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  margin: 0 auto;
+  -webkit-tap-highlight-color: transparent;
+}
+.alg-side {
   flex: 1 1 220px;
   display: grid;
   gap: 12px;
   justify-items: start;
 }
-.f2l-title {
+.alg-title {
   font-family: var(--num);
   font-size: 2rem;
   font-weight: 700;
   line-height: 1;
 }
-.f2l-title small {
+.alg-title small {
   font-family: var(--jp);
   font-size: 0.85rem;
   font-weight: 500;
   color: var(--muted);
   margin-left: 10px;
 }
-.f2l-alg {
+.ll {
+  width: 120px;
+  height: 120px;
+}
+.alg-moves {
   display: flex;
   flex-wrap: wrap;
   gap: 5px;
 }
-.f2l-alg span {
+.alg-moves span {
   text-align: center;
   font-size: 1.15rem;
   min-width: 2.2em;
   padding: 4px 6px;
 }
-.f2l-alg span.done {
+.alg-moves span.done {
   color: var(--muted);
 }
-.f2l-alg span.now {
+.alg-moves span.now {
   background: var(--yellow);
   border-color: var(--yellow);
   color: var(--on-light);
 }
-.f2l-side .play {
-  min-width: 7em;
-}
-.f2l-note {
+.alg-note {
   color: var(--muted);
   font-size: 0.8rem;
   margin: 12px 0 0;
@@ -640,7 +659,6 @@ a.btn {
   height: 300px;
   perspective: 900px;
   flex: none;
-  margin: 0 auto;
 }
 .cube3d-scene {
   position: absolute;

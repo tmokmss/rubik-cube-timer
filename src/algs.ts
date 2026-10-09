@@ -1,8 +1,8 @@
 import { mount } from 'svelte';
-import F2LApp from './F2LApp.svelte';
+import AlgsApp from './AlgsApp.svelte';
 import './app.css';
 
 const target = document.getElementById('app');
 if (!target) throw new Error('#app が見つかりません');
 
-export default mount(F2LApp, { target });
+export default mount(AlgsApp, { target });

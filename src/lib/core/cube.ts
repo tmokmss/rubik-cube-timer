@@ -158,7 +158,7 @@ export const isF2LCase = (cube: Cube) =>
   });
 
 // ペア 2 個の位置と向きを、U の回し方(AUF)の違いを無視して文字列にする
-export const signature = (cube: Cube) => {
+export const f2lSignature = (cube: Cube) => {
   const U = parse('U')[0];
   const keys: string[] = [];
   let c = cube;
@@ -171,5 +171,43 @@ export const signature = (cube: Cube) => {
     );
     c = turn(c, U);
   }
+  return keys.sort()[0];
+};
+
+const isLL = (c: Cubie) => c.home[1] === 1 && !isCenter(c);
+
+// 1・2 段目が揃っていて、上の段のピースが上の段にあること
+export const isOLLCase = (cube: Cube) =>
+  cube.every((c) => (c.home[1] === 1 ? c.pos[1] === 1 : isSolvedPiece(c)));
+
+// さらに上の面がすべて上を向いていること
+export const isPLLCase = (cube: Cube) =>
+  isOLLCase(cube) && cube.filter(isLL).every((c) => eq(apply(c.rot, [0, 1, 0]), [0, 1, 0]));
+
+// 上の段のどこで上の面の色がどちらを向いているか。U の回し方の違いは無視する
+export const ollSignature = (cube: Cube) =>
+  [0, 1, 2, 3]
+    .map((a) => {
+      const r = axisRot(1, a);
+      return cube
+        .filter(isLL)
+        .map((c) => JSON.stringify([apply(r, c.pos), apply(r, apply(c.rot, [0, 1, 0]))]))
+        .sort()
+        .join();
+    })
+    .sort()[0];
+
+// 上の段のどこにどのピースがあるか。手順の前後の U の回し方の違いは無視する
+export const pllSignature = (cube: Cube) => {
+  const keys: string[] = [];
+  for (const a of [0, 1, 2, 3])
+    for (const b of [0, 1, 2, 3])
+      keys.push(
+        cube
+          .filter(isLL)
+          .map((c) => JSON.stringify([apply(axisRot(1, a), c.pos), apply(axisRot(1, b), c.home)]))
+          .sort()
+          .join(),
+      );
   return keys.sort()[0];
 };
