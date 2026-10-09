@@ -1,5 +1,6 @@
 // 手順の一覧。番号・名前・グループは SpeedCubeDB に合わせている。
 // 手順は各ケースの上位 3 つから、持ち替え(x / y / z)の無いものを選んだ。無いケースは 1 位のもの。
+// PLL の Ua / Ub / Z は、だーおかキューブ教室の 2Look PLL(https://www.daaokacubeblog.com/2352/)の手順にしている。
 // 正しさは algs.test.ts がシミュレータで確かめている。
 
 export type AlgSetName = 'F2L' | 'OLL' | 'PLL';
@@ -161,11 +162,11 @@ export const ALG_SETS: Record<AlgSetName, AlgSet> = {
       { name: 'Ra', group: 'Adj Swap', alg: "L U2 L' U2 L F' L' U' L U L F L2" },
       { name: 'Rb', group: 'Adj Swap', alg: "R' U2 R U2 R' F R U R' U' R' F' R2" },
       { name: 'T', group: 'Adj Swap', alg: "R U R' U' R' F R2 U' R' U' R U R' F'" },
-      { name: 'Ua', group: 'EPLL', alg: "R U R' U R' U' R2 U' R' U R' U R" },
-      { name: 'Ub', group: 'EPLL', alg: "R' U R' U' R' U' R' U R U R2" },
+      { name: 'Ua', group: 'EPLL', alg: "M2' U M U2 M' U M2'" },
+      { name: 'Ub', group: 'EPLL', alg: "M2' U' M U2 M' U' M2'" },
       { name: 'V', group: 'Opp Swap', alg: "R' U R' U' R D' R' D R' U D' R2 U' R2 D R2" },
       { name: 'Y', group: 'Opp Swap', alg: "F R U' R' U' R U R' F' R U R' U' R' F R F'" },
-      { name: 'Z', group: 'EPLL', alg: "M' U' M2 U' M2 U' M' U2 M2" },
+      { name: 'Z', group: 'EPLL', alg: "M2' U M2' U M' U2 M2' U2 M'" },
     ],
   },
 };
