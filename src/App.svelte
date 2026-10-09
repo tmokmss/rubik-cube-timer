@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import F2LPanel from './lib/components/F2LPanel.svelte';
   import History from './lib/components/History.svelte';
   import StageTable from './lib/components/StageTable.svelte';
   import StatsBar from './lib/components/StatsBar.svelte';
@@ -210,6 +211,8 @@
     goalMs={app.goalMs}
     targets={app.targets}
   />
+
+  <F2LPanel />
 
   <History
     solves={app.visibleSolves}

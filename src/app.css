@@ -536,3 +536,145 @@ svg text {
   height: 16px;
   fill: currentColor;
 }
+
+/* ---------- F2L の手順 ---------- */
+.f2l summary {
+  cursor: pointer;
+  list-style-position: inside;
+}
+.f2l summary h2 {
+  display: inline;
+}
+.f2l-pick {
+  display: grid;
+  gap: 8px;
+  margin: 14px 0;
+}
+.f2l-group {
+  display: grid;
+  grid-template-columns: 9em 1fr;
+  gap: 8px;
+  align-items: center;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.f2l-group div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.f2l-group button,
+.f2l-alg button {
+  font: inherit;
+  font-family: var(--num);
+  font-weight: 600;
+  color: var(--ink);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  cursor: pointer;
+}
+.f2l-group button {
+  min-width: 2.3em;
+  padding: 3px 0;
+}
+.f2l-group button[aria-pressed='true'] {
+  background: var(--green);
+  border-color: var(--green);
+  color: var(--on-light);
+}
+.f2l-view {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+}
+.f2l-side {
+  flex: 1 1 220px;
+  display: grid;
+  gap: 12px;
+  justify-items: start;
+}
+.f2l-title {
+  font-family: var(--num);
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+}
+.f2l-title small {
+  font-family: var(--jp);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--muted);
+  margin-left: 10px;
+}
+.f2l-alg {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.f2l-alg button {
+  font-size: 1.15rem;
+  min-width: 2.2em;
+  padding: 4px 6px;
+}
+.f2l-alg button.done {
+  color: var(--muted);
+}
+.f2l-alg button.now {
+  background: var(--yellow);
+  border-color: var(--yellow);
+  color: var(--on-light);
+}
+.f2l-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.f2l-controls .btn {
+  white-space: nowrap;
+  padding: 7px 11px;
+}
+.f2l-controls .play {
+  min-width: 5.5em;
+}
+.f2l-note {
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin: 12px 0 0;
+}
+
+.cube3d {
+  --cube-grey: #7b818c;
+  position: relative;
+  width: 260px;
+  height: 250px;
+  perspective: 900px;
+  flex: none;
+  margin: 0 auto;
+}
+.cube3d-scene {
+  position: absolute;
+  left: 50%;
+  top: 52%;
+  transform-style: preserve-3d;
+  transform: rotateX(-27deg) rotateY(-38deg);
+}
+.cubie {
+  position: absolute;
+  width: var(--s);
+  height: var(--s);
+  margin: calc(var(--s) / -2) 0 0 calc(var(--s) / -2);
+  transform-style: preserve-3d;
+}
+.cubie .face {
+  position: absolute;
+  inset: 0;
+  background: #121317;
+  backface-visibility: hidden;
+}
+.cubie .face span {
+  position: absolute;
+  inset: 7%;
+  border-radius: 14%;
+}

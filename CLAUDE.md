@@ -22,6 +22,7 @@ src/
     wakelock.svelte.ts   練習中に画面を消させない
     pwa.svelte.ts        Service Worker の更新通知
     drive.svelte.ts      Google Drive 同期(認証と進行)
+    f2l.svelte.ts        F2L の手順を 1 手ずつ回して見せる再生器
     core/                UI 非依存。ここだけテストがある
       types.ts           型、区間の定義、目標の比例配分
       format.ts          時間の表示
@@ -30,6 +31,8 @@ src/
       keys.ts            Space をどこで拾うかの判定
       sync.ts            端末間マージと墓標(純関数)
       drive.ts           Drive REST の呼び出し
+      cube.ts            キューブのシミュレータ(27 個の位置と向き)
+      f2l.ts             F2L 41 ケースの手順。正しさは f2l.test.ts がシミュレータで確かめる
     components/          表示のみ
 ```
 
@@ -262,6 +265,15 @@ Drive のファイルは **last-writer-wins** で、条件付き更新の手段�
 - 数字は Saira Semi Condensed(tabular-nums)、本文は Zen Kaku Gothic New
 - ライト/ダーク両対応。色は `:root` のCSS変数で定義。ダークで反転する文言を書かない
   (「黒い線が目標」ではなく「縦線が目標」)
+
+## F2L の手順
+
+パネルでケースを選ぶと、3D のキューブで手順を 1 手ずつ回して見せる。描画は CSS の 3D 変形
+(`CubeView.svelte`)で、ライブラリは使っていない。
+
+- 手順を差し替えたら `pnpm test`。手順の逆を当てると他のスロットを崩さない F2L の形になること、
+  SpeedCubeDB の同じ番号のケースと一致すること、41 ケースで全パターンを覆うことを確かめる
+- 上の段はペア以外を灰色にする(見るべきピースだけに色を付ける)
 
 ## 開発
 
